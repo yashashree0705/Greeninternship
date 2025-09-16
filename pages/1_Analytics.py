@@ -7,8 +7,19 @@ import plotly.express as px
 # -------------------------
 # Load Data
 # -------------------------
-import tempfile
-LOG_FILE = os.path.join(tempfile.gettempdir(), "logs.csv")
+from utils import init_logs, read_logs, LOG_FILE
+import pandas as pd
+
+# Ensure logs.csv exists and safe to read
+init_logs()
+
+# Read data safely
+df = read_logs()
+
+# Optional debug
+# print("LOG_FILE path:", LOG_FILE)
+# print("Exists?", os.path.exists(LOG_FILE))
+# print(df.head())
 
 
 
