@@ -1,11 +1,11 @@
 import os
 import pandas as pd
 
-# Always use project root
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # utils.py folder
-PROJECT_ROOT = os.path.dirname(BASE_DIR)              # go one level up if utils.py is inside a folder
+# Streamlit CWD is usually the folder you run the app from
+PROJECT_ROOT = os.getcwd()  # safest way in multi-page Streamlit apps
+
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
-os.makedirs(DATA_DIR, exist_ok=True)  # create folder if missing
+os.makedirs(DATA_DIR, exist_ok=True)
 
 LOG_FILE = os.path.join(DATA_DIR, "logs.csv")
 
