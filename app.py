@@ -62,7 +62,7 @@ def load_logs():
 # -------------------------
 st.set_page_config(page_title="Energy Savings Habit Tracker", layout="wide")
 
-st.title("⚡ Energy Savings Habit Tracker")
+st.title("Energy Savings Habit Tracker")
 st.markdown("Log daily appliance usage, see estimated energy (kWh), cost (₹), and CO₂ (kg). Save and analyze entries.")
 
 # Sidebar settings
@@ -77,7 +77,7 @@ w_charger = st.sidebar.number_input("Charger (W)", value=DEFAULT_WATTAGES["charg
 w_washing = st.sidebar.number_input("Washing machine (W per cycle-equivalent)", value=DEFAULT_WATTAGES["washing_machine"], step=10)
 
 # Input form
-st.header("📥 Log a new entry")
+st.header("Log a new entry")
 with st.form("log_form", clear_on_submit=False):
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -151,7 +151,7 @@ if submitted:
 # -------------------------
 # Data display & analysis
 # -------------------------
-st.header("📊 Logged entries & Analysis")
+st.header("Logged entries & Analysis")
 df_logs = load_logs()
 if df_logs.empty:
     st.warning("No logs yet. Add an entry above.")
@@ -215,4 +215,5 @@ else:
     st.markdown("**Download full logs**")
     csv = df_logs.to_csv(index=False).encode('utf-8')
     st.download_button("Download logs as CSV", data=csv, file_name="energy_logs.csv", mime="text/csv")
+
 
