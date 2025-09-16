@@ -5,7 +5,20 @@ import pandas as pd
 import plotly.express as px
 import datetime
 
+import os
+
 LOG_FILE = "logs.csv"
+
+# If logs.csv doesn't exist, create it with correct headers
+if not os.path.exists(LOG_FILE):
+    import pandas as pd
+    df_init = pd.DataFrame(columns=[
+        "user_id", "date", "period",
+        "fan_hours", "light_hours", "ac_hours", "charger_hours", "washing_cycles",
+        "kwh", "tariff_rs_per_kwh", "cost_rs", "emission_factor_kg_per_kwh", "co2_kg"
+    ])
+    df_init.to_csv(LOG_FILE, index=False)
+
 
 @st.cache_data
 def load_logs():
@@ -19,7 +32,7 @@ def load_logs():
 
 df = load_logs()
 
-st.title("🎮 Streaks & Rewards Library")
+st.title("Streaks & Rewards Library")
 
 if df.empty:
     st.warning("No data available. Please log entries first.")
