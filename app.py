@@ -8,8 +8,10 @@ import matplotlib.pyplot as plt
 # -------------------------
 # Configuration / defaults
 # -------------------------
-DATA_PATH = "data"
-LOG_FILE = os.path.join(DATA_PATH, "logs.csv")
+#DATA_PATH = "data"
+#LOG_FILE = os.path.join(DATA_PATH, "logs.csv")
+import tempfile
+LOG_FILE = os.path.join(tempfile.gettempdir(), "logs.csv")
 
 DEFAULT_WATTAGES = {
     "fan": 75,        # watts
@@ -23,7 +25,7 @@ DEFAULT_TARIFF = 7.0            # Rs per kWh
 DEFAULT_EMISSION = 0.82         # kg CO2 per kWh
 
 # Ensure data folder exists
-os.makedirs(DATA_PATH, exist_ok=True)
+#os.makedirs(DATA_PATH, exist_ok=True)
 
 # Initialize log file if doesn't exist
 if not os.path.exists(LOG_FILE):
@@ -213,3 +215,4 @@ else:
     st.markdown("**Download full logs**")
     csv = df_logs.to_csv(index=False).encode('utf-8')
     st.download_button("Download logs as CSV", data=csv, file_name="energy_logs.csv", mime="text/csv")
+
