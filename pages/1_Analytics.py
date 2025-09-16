@@ -10,11 +10,19 @@ import plotly.express as px
 from utils import init_logs, LOG_FILE
 import pandas as pd
 
-# Ensure file exists
+# Make sure logs.csv exists with headers
 init_logs()
 
-# Now read safely
-df = pd.read_csv(LOG_FILE)
+# Read safely
+try:
+    df = pd.read_csv(LOG_FILE)
+except pd.errors.EmptyDataError:
+    # File exists but is empty, create empty DataFrame with headers
+    df = pd.DataFrame(columns=[
+        "user_id", "date", "period",
+        "fan_hours", "light_hours", "ac_hours", "charger_hours", "washing_cycles",
+        "kwh", "tariff_rs_per_kwh", "cost_rs", "emission_factor_kg_per_kwh", "co2_kg"
+    ])
 
 
 
