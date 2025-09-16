@@ -1,11 +1,16 @@
 import os
 import pandas as pd
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-LOG_FILE = os.path.join(BASE_DIR, "logs.csv")
+# Always use project root
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # utils.py folder
+PROJECT_ROOT = os.path.dirname(BASE_DIR)              # go one level up if utils.py is inside a folder
+DATA_DIR = os.path.join(PROJECT_ROOT, "data")
+os.makedirs(DATA_DIR, exist_ok=True)  # create folder if missing
+
+LOG_FILE = os.path.join(DATA_DIR, "logs.csv")
 
 def init_logs():
-    """Create logs.csv with headers if it doesn't exist or is empty"""
+    """Create logs.csv with headers if missing or empty"""
     if not os.path.exists(LOG_FILE) or os.path.getsize(LOG_FILE) == 0:
         df_init = pd.DataFrame(columns=[
             "user_id", "date", "period",
