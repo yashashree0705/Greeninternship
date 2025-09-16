@@ -7,19 +7,15 @@ import plotly.express as px
 # -------------------------
 # Load Data
 # -------------------------
-import os
+from utils import init_logs, LOG_FILE
 
-LOG_FILE = "logs.csv"
+# Initialize logs file if it doesn't exist
+init_logs()
 
-# If logs.csv doesn't exist, create it with correct headers
-if not os.path.exists(LOG_FILE):
-    import pandas as pd
-    df_init = pd.DataFrame(columns=[
-        "user_id", "date", "period",
-        "fan_hours", "light_hours", "ac_hours", "charger_hours", "washing_cycles",
-        "kwh", "tariff_rs_per_kwh", "cost_rs", "emission_factor_kg_per_kwh", "co2_kg"
-    ])
-    df_init.to_csv(LOG_FILE, index=False)
+# Later you can read/write logs like:
+import pandas as pd
+df = pd.read_csv(LOG_FILE)
+
 
 @st.cache_data
 def load_logs():
