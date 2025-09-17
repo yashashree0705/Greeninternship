@@ -7,6 +7,8 @@ import plotly.express as px
 # -------------------------
 # Load Data
 # -------------------------
+import utils
+print("Using utils from:", utils.__file__)
 from utils import read_logs, append_log
 
 # Optional debug
