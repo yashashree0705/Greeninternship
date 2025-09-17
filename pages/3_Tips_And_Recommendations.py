@@ -12,17 +12,6 @@ def load_logs():
         df = pd.read_csv(LOG_FILE)
         df["date"] = pd.to_datetime(df["date"], errors="coerce")
         return df
-    except Exception:
-        return pd.DataFrame()
-
-df = load_logs()
-
-@st.cache_data
-def load_logs():
-    try:
-        df = pd.read_csv(LOG_FILE)
-        df["date"] = pd.to_datetime(df["date"], errors="coerce")
-        return df
     except Exception as e:
         st.error(f"Error loading logs: {e}")
         return pd.DataFrame()
