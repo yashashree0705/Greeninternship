@@ -9,6 +9,12 @@ import tempfile
 # Use SAME log file path as app.py & Analytics
 LOG_FILE = os.path.join(tempfile.gettempdir(), "logs.csv")
 
+def load_logs():
+    try:
+        return pd.read_csv(LOG_FILE)
+    except Exception:
+        return pd.DataFrame()
+
 # Ensure log file exists with headers
 if not os.path.exists(LOG_FILE):
     df_init = pd.DataFrame(columns=[
