@@ -5,7 +5,7 @@ from utils import read_logs
 
 st.set_page_config(page_title="Tips & Recommendations", layout="wide")
 
-st.title("💡 Smart Energy Tips & Recommendations")
+st.title("Smart Energy Tips & Recommendations")
 
 # -------------------------
 # Load Logs
@@ -16,11 +16,11 @@ if df is None or df.empty:
     st.warning("⚠ No data available. Please log entries first.")
     st.info("Meanwhile, here are some **general energy-saving tips**:")
     for tip in [
-        "💡 Replace old bulbs with LED lights (up to 80% savings).",
-        "🌬 Use natural ventilation instead of AC whenever possible.",
-        "🔌 Turn off appliances completely instead of leaving them on standby.",
-        "⏱ Use timers/smart plugs to automate turning off fans/lights.",
-        "👕 Wash clothes in cold water to save heating energy."
+        " Replace old bulbs with LED lights (up to 80% savings).",
+        " Use natural ventilation instead of AC whenever possible.",
+        " Turn off appliances completely instead of leaving them on standby.",
+        " Use timers/smart plugs to automate turning off fans/lights.",
+        " Wash clothes in cold water to save heating energy."
     ]:
         st.write(tip)
     st.stop()
@@ -46,7 +46,7 @@ for col in ["fan_hours","light_hours","ac_hours","charger_hours","washing_cycles
 tariff = latest["tariff_rs_per_kwh"]
 emission_factor = latest["emission_factor_kg_per_kwh"]
 
-st.subheader(f"✨ Personalized Tips for **{selected_user}**")
+st.subheader(f" Personalized Tips for **{selected_user}**")
 
 # -------------------------
 # Generate Personalized Tips
@@ -58,7 +58,7 @@ def add_tip(condition, title, description, saved, co2, color, icon):
         tips.append({
             "title": title,
             "description": description,
-            "impact": f"💰 Save ~₹{saved:.1f}/month | 🌍 Cut {co2:.1f} kg CO₂",
+            "impact": f"Save ~₹{saved:.1f}/month | 🌍 Cut {co2:.1f} kg CO₂",
             "color": color,
             "icon": icon
         })
@@ -66,33 +66,33 @@ def add_tip(condition, title, description, saved, co2, color, icon):
 # Fan
 saved = (0.5 * 75 / 1000) * tariff * 30
 co2 = (0.5 * 75 / 1000) * emission_factor * 30
-add_tip(latest["fan_hours"] > 6, "Fan Overuse", "Try reducing fan usage by 30 min/day.", saved, co2, "#FFA726", "🌀")
+add_tip(latest["fan_hours"] > 6, "Fan Overuse", "Try reducing fan usage by 30 min/day.", saved, co2, "#FFA726")
 
 # Light
 saved = (1 * 40 / 1000) * tariff * 30
 co2 = (1 * 40 / 1000) * emission_factor * 30
-add_tip(latest["light_hours"] > 4, "Lights On Too Long", "Switch off lights 1h earlier or use LED bulbs.", saved, co2, "#29B6F6", "💡")
+add_tip(latest["light_hours"] > 4, "Lights On Too Long", "Switch off lights 1h earlier or use LED bulbs.", saved, co2, "#29B6F6")
 
 # AC
 saved = (1 * 1500 / 1000) * tariff * 30
 co2 = (1 * 1500 / 1000) * emission_factor * 30
-add_tip(latest["ac_hours"] > 2, "AC Overuse", "Set AC to 26°C and reduce by 1h/day.", saved, co2, "#EF5350", "❄")
+add_tip(latest["ac_hours"] > 2, "AC Overuse", "Set AC to 26°C and reduce by 1h/day.", saved, co2, "#EF5350")
 
 # Charger
 saved = (1 * 5 / 1000) * tariff * 30
 co2 = (1 * 5 / 1000) * emission_factor * 30
-add_tip(latest["charger_hours"] > 2, "Chargers Plugged In", "Unplug chargers when not in use.", saved, co2, "#66BB6A", "🔌")
+add_tip(latest["charger_hours"] > 2, "Chargers Plugged In", "Unplug chargers when not in use.", saved, co2, "#66BB6A")
 
 # Washing Machine
 saved = (1 * 500 / 1000) * tariff * 4
 co2 = (1 * 500 / 1000) * emission_factor * 4
-add_tip(latest["washing_cycles"] > 1, "Frequent Washing", "Try reducing washing by 1 cycle/week.", saved, co2, "#AB47BC", "👕")
+add_tip(latest["washing_cycles"] > 1, "Frequent Washing", "Try reducing washing by 1 cycle/week.", saved, co2, "#AB47BC")
 
 # -------------------------
 # Display Tips in Boxes
 # -------------------------
 if tips:
-    st.markdown("#### 🔎 Suggested Improvements")
+    st.markdown("#### Suggested Improvements")
     for tip in tips:
         st.markdown(
             f"""
@@ -105,12 +105,12 @@ if tips:
             unsafe_allow_html=True
         )
 else:
-    st.success("✅ Great job! Your usage is already efficient 🎉")
+    st.success("Great job! Your usage is already efficient 🎉")
 
 # -------------------------
 # Gamification: Score
 # -------------------------
-st.subheader("🎯 Your Energy Efficiency Score")
+st.subheader("Your Energy Efficiency Score")
 score = max(0, 100 - int(latest["fan_hours"]*2 + latest["ac_hours"]*5 + latest["light_hours"]))
 st.progress(score/100)
 st.write(f"Your score: **{score}/100** (higher = better!)")
@@ -118,13 +118,13 @@ st.write(f"Your score: **{score}/100** (higher = better!)")
 # -------------------------
 # General Tips
 # -------------------------
-with st.expander("🌍 General Energy-Saving Tips"):
+with st.expander("General Energy-Saving Tips"):
     general_tips = [
-        "💡 Replace old bulbs with LED lights (up to 80% savings).",
-        "🌬 Use natural ventilation instead of AC whenever possible.",
-        "🔌 Turn off appliances completely instead of leaving them on standby.",
-        "⏱ Use timers/smart plugs to automate turning off fans/lights.",
-        "👕 Wash clothes in cold water to save heating energy."
+        "Replace old bulbs with LED lights (up to 80% savings).",
+        "Use natural ventilation instead of AC whenever possible.",
+        "Turn off appliances completely instead of leaving them on standby.",
+        "Use timers/smart plugs to automate turning off fans/lights.",
+        "Wash clothes in cold water to save heating energy."
     ]
     for tip in general_tips:
         st.write(tip)
