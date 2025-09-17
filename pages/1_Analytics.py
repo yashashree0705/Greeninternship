@@ -5,6 +5,7 @@ import pandas as pd
 import os
 import tempfile
 import matplotlib.pyplot as plt
+import plotly.express as px  # <-- you forgot this
 
 # Use the SAME log file as app.py
 LOG_FILE = os.path.join(tempfile.gettempdir(), "logs.csv")
@@ -15,52 +16,65 @@ def load_logs():
     except Exception:
         return pd.DataFrame()
 
+# -------------------------
+# Streamlit Page Config
+# -------------------------
 st.set_page_config(page_title="Energy Usage Analytics", layout="wide")
 
-st.title("Energy Usage Analytics")
+st.title("📊 Energy Usage Analytics")
 st.markdown("Explore trends, compare baseline vs post, and see who saved the most!")
 
+# -------------------------
+# Load Data
+# -------------------------
 df = load_logs()
 
 if df.empty:
-    st.warning("No data available. Please add logs first.")
-else:
-    st.success(f"Loaded {len(df)} log entries")
+    st.warning("⚠ No data available. Please add logs first in the main app.")
+    st.stop()  # Exit early if no data
 
-    # Show full logs
-    st.subheader("All Logs")
-    st.dataframe(df)
+st.success(f"✅ Loaded {len(df)} log entries")
 
-    # Aggregate by user
-    st.subheader("User Summary")
-    agg = df.groupby("user_id").agg({
-        "kwh": ["sum", "mean", "count"],
-        "cost_rs": "sum",
-        "co2_kg": "sum"
-    })
-    agg.columns = ["_".join(col) for col in agg.columns]
-    st.table(agg.reset_index())
+# -------------------------
+# Full Logs
+# -------------------------
+st.subheader("All Logs")
+st.dataframe(df)
 
-    # Chart kWh over time
-    st.subheader("Energy Trend")
-    df["date"] = pd.to_datetime(df["date"])
-    fig, ax = plt.subplots()
-    for uid, g in df.groupby("user_id"):
-        g_sorted = g.sort_values("date")
-        ax.step(g_sorted["date"], g_sorted["kwh"], where="mid", marker="o", label=uid)
-    ax.set_xlabel("Date")
-    ax.set_ylabel("kWh")
-    ax.legend()
-    ax.grid(True)
-    st.pyplot(fig)
+# -------------------------
+# User Summary
+# -------------------------
+st.subheader("User Summary")
+agg = df.groupby("user_id").agg({
+    "kwh": ["sum", "mean", "count"],
+    "cost_rs": "sum",
+    "co2_kg": "sum"
+})
+agg.columns = ["_".join(col) for col in agg.columns]
+st.table(agg.reset_index())
 
+# -------------------------
+# kWh Trend over Time
+# -------------------------
+st.subheader("Energy Trend")
+df["date"] = pd.to_datetime(df["date"])
+
+fig, ax = plt.subplots()
+for uid, g in df.groupby("user_id"):
+    g_sorted = g.sort_values("date")
+    ax.step(g_sorted["date"], g_sorted["kwh"], where="mid", marker="o", label=uid)
+ax.set_xlabel("Date")
+ax.set_ylabel("kWh")
+ax.legend()
+ax.grid(True)
+st.pyplot(fig)
 
 # -------------------------
 # Baseline vs Post Comparison
 # -------------------------
 st.header("⚖ Baseline vs Post Comparison")
 
-if "baseline" in df["period"].unique() and "post" in df["period"].unique():
+if {"baseline", "post"}.issubset(df["period"].unique()):
     comp = df.groupby("period").agg(
         total_kwh=("kwh", "mean"),
         total_cost=("cost_rs", "mean"),
@@ -68,9 +82,11 @@ if "baseline" in df["period"].unique() and "post" in df["period"].unique():
     ).reset_index()
 
     col1, col2, col3 = st.columns(3)
-    col1.metric("Avg. kWh (Baseline)", f"{comp.loc[comp['period']=='baseline','total_kwh'].values[0]:.2f}")
-    col2.metric("Avg. kWh (Post)", f"{comp.loc[comp['period']=='post','total_kwh'].values[0]:.2f}")
-    col3.metric("Change (%)", f"{((comp.loc[comp['period']=='post','total_kwh'].values[0] - comp.loc[comp['period']=='baseline','total_kwh'].values[0]) / comp.loc[comp['period']=='baseline','total_kwh'].values[0])*100:.1f}%")
+    baseline_kwh = comp.loc[comp["period"] == "baseline", "total_kwh"].values[0]
+    post_kwh = comp.loc[comp["period"] == "post", "total_kwh"].values[0]
+    col1.metric("Avg. kWh (Baseline)", f"{baseline_kwh:.2f}")
+    col2.metric("Avg. kWh (Post)", f"{post_kwh:.2f}")
+    col3.metric("Change (%)", f"{((post_kwh - baseline_kwh) / baseline_kwh) * 100:.1f}%")
 
     fig = px.bar(
         comp,
@@ -82,14 +98,14 @@ if "baseline" in df["period"].unique() and "post" in df["period"].unique():
     )
     st.plotly_chart(fig, use_container_width=True)
 else:
-    st.info("Not enough data for baseline vs post comparison yet.")
+    st.info("ℹ Not enough data for baseline vs post comparison yet. Add both baseline and post entries.")
 
 # -------------------------
 # Per User Savings
 # -------------------------
-st.header("Per-User Savings")
+st.header("🏆 Per-User Savings")
 
-if "baseline" in df["period"].unique() and "post" in df["period"].unique():
+if {"baseline", "post"}.issubset(df["period"].unique()):
     baseline = df[df["period"] == "baseline"].set_index("user_id")
     post = df[df["period"] == "post"].set_index("user_id")
 
@@ -106,7 +122,6 @@ if "baseline" in df["period"].unique() and "post" in df["period"].unique():
 
     st.dataframe(merged[["kwh_baseline", "kwh_post", "kwh_saving", "cost_saving", "co2_saving"]])
 
-    # Leaderboard chart
     leaderboard = merged.reset_index().sort_values("kwh_saving", ascending=False)
     fig2 = px.bar(
         leaderboard,
@@ -117,14 +132,13 @@ if "baseline" in df["period"].unique() and "post" in df["period"].unique():
         color="kwh_saving"
     )
     st.plotly_chart(fig2, use_container_width=True)
-
 else:
-    st.info("Need both baseline and post entries for users to calculate savings.")
+    st.info("ℹ Need both baseline and post entries for users to calculate savings.")
 
 # -------------------------
 # Appliance Usage Insights
 # -------------------------
-st.header("Appliance Usage Insights")
+st.header("🔌 Appliance Usage Insights")
 
 avg_hours = df.groupby("period")[["fan_hours", "light_hours", "ac_hours", "charger_hours", "washing_cycles"]].mean().reset_index()
 fig3 = px.bar(
