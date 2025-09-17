@@ -1,4 +1,5 @@
 # pages/2_User_Profile.py
+# pages/2_User_Profile.py
 
 import streamlit as st
 import pandas as pd
@@ -6,23 +7,8 @@ import plotly.express as px
 import os
 import tempfile
 
-# Use SAME log file path as app.py & Analytics
+# Use the SAME log file as in app.py and Analytics page
 LOG_FILE = os.path.join(tempfile.gettempdir(), "logs.csv")
-
-def load_logs():
-    try:
-        return pd.read_csv(LOG_FILE)
-    except Exception:
-        return pd.DataFrame()
-
-# Ensure log file exists with headers
-if not os.path.exists(LOG_FILE):
-    df_init = pd.DataFrame(columns=[
-        "user_id", "date", "period",
-        "fan_hours", "light_hours", "ac_hours", "charger_hours", "washing_cycles",
-        "kwh", "tariff_rs_per_kwh", "cost_rs", "emission_factor_kg_per_kwh", "co2_kg"
-    ])
-    df_init.to_csv(LOG_FILE, index=False)
 
 @st.cache_data
 def load_logs():
@@ -30,8 +16,7 @@ def load_logs():
         df = pd.read_csv(LOG_FILE)
         df["date"] = pd.to_datetime(df["date"], errors="coerce")
         return df
-    except Exception as e:
-        st.error(f"Error loading logs: {e}")
+    except Exception:
         return pd.DataFrame()
 
 df = load_logs()
@@ -45,7 +30,7 @@ if df.empty:
 # -------------------------
 # User Selection
 # -------------------------
-users = df["user_id"].unique().tolist()
+users = df["user_id"].dropna().unique().tolist()
 selected_user = st.selectbox("Select User", users)
 
 user_df = df[df["user_id"] == selected_user].sort_values("date")
@@ -114,14 +99,17 @@ st.header("Appliance Usage Breakdown")
 
 appliance_cols = ["fan_hours", "light_hours", "ac_hours", "charger_hours", "washing_cycles"]
 
-avg_usage = user_df.groupby("period")[appliance_cols].mean().reset_index()
-fig3 = px.bar(
-    avg_usage.melt(id_vars="period", var_name="Appliance", value_name="Hours"),
-    x="Appliance", y="Hours", color="period",
-    barmode="group", text_auto=".2f",
-    title=f"Average Appliance Usage - {selected_user}"
-)
-st.plotly_chart(fig3, use_container_width=True)
+if any(col in user_df.columns for col in appliance_cols):
+    avg_usage = user_df.groupby("period")[appliance_cols].mean().reset_index()
+    fig3 = px.bar(
+        avg_usage.melt(id_vars="period", var_name="Appliance", value_name="Hours"),
+        x="Appliance", y="Hours", color="period",
+        barmode="group", text_auto=".2f",
+        title=f"Average Appliance Usage - {selected_user}"
+    )
+    st.plotly_chart(fig3, use_container_width=True)
+else:
+    st.info("No appliance usage data available.")
 
 # -------------------------
 # Personalized Summary
