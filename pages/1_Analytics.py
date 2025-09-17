@@ -21,7 +21,7 @@ def load_logs():
 # -------------------------
 st.set_page_config(page_title="Energy Usage Analytics", layout="wide")
 
-st.title("📊 Energy Usage Analytics")
+st.title("Energy Usage Analytics")
 st.markdown("Explore trends, compare baseline vs post, and see who saved the most!")
 
 # -------------------------
@@ -33,7 +33,7 @@ if df.empty:
     st.warning("⚠ No data available. Please add logs first in the main app.")
     st.stop()  # Exit early if no data
 
-st.success(f"✅ Loaded {len(df)} log entries")
+st.success(f"Loaded {len(df)} log entries")
 
 # -------------------------
 # Full Logs
@@ -103,7 +103,7 @@ else:
 # -------------------------
 # Per User Savings
 # -------------------------
-st.header("🏆 Per-User Savings")
+st.header("Per-User Savings")
 
 if {"baseline", "post"}.issubset(df["period"].unique()):
     baseline = df[df["period"] == "baseline"].set_index("user_id")
@@ -138,7 +138,7 @@ else:
 # -------------------------
 # Appliance Usage Insights
 # -------------------------
-st.header("🔌 Appliance Usage Insights")
+st.header("Appliance Usage Insights")
 
 avg_hours = df.groupby("period")[["fan_hours", "light_hours", "ac_hours", "charger_hours", "washing_cycles"]].mean().reset_index()
 fig3 = px.bar(
