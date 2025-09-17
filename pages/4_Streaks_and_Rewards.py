@@ -4,6 +4,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import datetime
+import os 
 
 from utils import read_logs
 # If logs.csv doesn't exist, create it with correct headers
