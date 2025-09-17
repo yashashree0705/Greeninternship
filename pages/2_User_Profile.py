@@ -4,19 +4,19 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import os
+import tempfile
 
-LOG_FILE = "logs.csv"
+# Use SAME log file path as app.py & Analytics
+LOG_FILE = os.path.join(tempfile.gettempdir(), "logs.csv")
 
-# If logs.csv doesn't exist, create it with correct headers
+# Ensure log file exists with headers
 if not os.path.exists(LOG_FILE):
-    import pandas as pd
     df_init = pd.DataFrame(columns=[
         "user_id", "date", "period",
         "fan_hours", "light_hours", "ac_hours", "charger_hours", "washing_cycles",
         "kwh", "tariff_rs_per_kwh", "cost_rs", "emission_factor_kg_per_kwh", "co2_kg"
     ])
     df_init.to_csv(LOG_FILE, index=False)
-
 
 @st.cache_data
 def load_logs():
@@ -73,7 +73,7 @@ st.plotly_chart(fig1, use_container_width=True)
 # -------------------------
 # Baseline vs Post (if available)
 # -------------------------
-st.header("⚖Baseline vs Post Comparison")
+st.header("⚖ Baseline vs Post Comparison")
 
 if "baseline" in user_df["period"].values and "post" in user_df["period"].values:
     baseline = user_df[user_df["period"] == "baseline"].iloc[0]
