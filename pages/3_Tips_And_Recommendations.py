@@ -66,7 +66,7 @@ def add_tip(condition, title, description, saved, co2, color, icon):
 # Fan
 saved = (0.5 * 75 / 1000) * tariff * 30
 co2 = (0.5 * 75 / 1000) * emission_factor * 30
-add_tip(latest["fan_hours"] > 6, "Fan Overuse", "Try reducing fan usage by 30 min/day.", saved, co2, "#FFA726")
+add_tip(latest["fan_hours"] > 6, "Fan Overuse", "Try reducing fan usage by 30 min/day.", saved, co2, "#FFA726"," ")
 
 # Light
 saved = (1 * 40 / 1000) * tariff * 30
