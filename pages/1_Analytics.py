@@ -7,14 +7,7 @@ import plotly.express as px
 # -------------------------
 # Load Data
 # -------------------------
-from utils import init_logs, read_logs, LOG_FILE
-import pandas as pd
-
-# Ensure logs.csv exists and safe to read
-init_logs()
-
-# Read data safely
-df = read_logs()
+from utils import read_logs, append_log
 
 # Optional debug
 # print("LOG_FILE path:", LOG_FILE)
