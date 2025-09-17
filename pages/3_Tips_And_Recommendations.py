@@ -2,7 +2,8 @@
 
 import streamlit as st
 import pandas as pd
-
+import os
+import tempfile
 LOG_FILE = os.path.join(tempfile.gettempdir(), "logs.csv")
 
 @st.cache_data
