@@ -5,10 +5,7 @@ import pandas as pd
 import plotly.express as px
 import datetime
 
-import os
-
-LOG_FILE = "logs.csv"
-
+from utils import read_logs
 # If logs.csv doesn't exist, create it with correct headers
 if not os.path.exists(LOG_FILE):
     import pandas as pd
