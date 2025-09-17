@@ -15,9 +15,12 @@ def load_logs():
 
 st.title("Tips & Recommendations")
 
-if df.empty:
-    st.warning("No data available. Please log entries first.")
-    st.stop()
+df = read_logs()
+
+if df is None or df.empty:
+    st.write("No data available. Please add logs first.")
+else:
+    st.success("Logs loaded successfully!")
 
 # -------------------------
 # User Selection
