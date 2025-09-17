@@ -1,42 +1,59 @@
 # pages/1_Analytics.py
-
+# pages/1_Analytics.py
 import streamlit as st
 import pandas as pd
-import plotly.express as px
+import os
+import tempfile
+import matplotlib.pyplot as plt
 
-# -------------------------
-# Load Data
-# -------------------------
-import utils
-print("Using utils from:", utils.__file__)
-from utils import read_logs, append_log
+# Use the SAME log file as app.py
+LOG_FILE = os.path.join(tempfile.gettempdir(), "logs.csv")
 
-# Optional debug
-# print("LOG_FILE path:", LOG_FILE)
-# print("Exists?", os.path.exists(LOG_FILE))
-# print(df.head())
-
-
-
-
-@st.cache_data
 def load_logs():
     try:
-        df = pd.read_csv(LOG_FILE)
-        df["date"] = pd.to_datetime(df["date"], errors="coerce")
-        return df
-    except Exception as e:
-        st.error(f"Error loading logs: {e}")
+        return pd.read_csv(LOG_FILE)
+    except Exception:
         return pd.DataFrame()
 
-df = load_logs()
+st.set_page_config(page_title="Energy Usage Analytics", layout="wide")
 
 st.title("Energy Usage Analytics")
 st.markdown("Explore trends, compare baseline vs post, and see who saved the most!")
 
+df = load_logs()
+
 if df.empty:
     st.warning("No data available. Please add logs first.")
-    st.stop()
+else:
+    st.success(f"Loaded {len(df)} log entries")
+
+    # Show full logs
+    st.subheader("All Logs")
+    st.dataframe(df)
+
+    # Aggregate by user
+    st.subheader("User Summary")
+    agg = df.groupby("user_id").agg({
+        "kwh": ["sum", "mean", "count"],
+        "cost_rs": "sum",
+        "co2_kg": "sum"
+    })
+    agg.columns = ["_".join(col) for col in agg.columns]
+    st.table(agg.reset_index())
+
+    # Chart kWh over time
+    st.subheader("Energy Trend")
+    df["date"] = pd.to_datetime(df["date"])
+    fig, ax = plt.subplots()
+    for uid, g in df.groupby("user_id"):
+        g_sorted = g.sort_values("date")
+        ax.step(g_sorted["date"], g_sorted["kwh"], where="mid", marker="o", label=uid)
+    ax.set_xlabel("Date")
+    ax.set_ylabel("kWh")
+    ax.legend()
+    ax.grid(True)
+    st.pyplot(fig)
+
 
 # -------------------------
 # Baseline vs Post Comparison
