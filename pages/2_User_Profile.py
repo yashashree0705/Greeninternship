@@ -21,7 +21,7 @@ def load_logs():
 
 df = load_logs()
 
-st.title("👤 User Profile Dashboard")
+st.title(" User Profile Dashboard")
 
 if df.empty:
     st.warning("No data available. Please log entries first.")
