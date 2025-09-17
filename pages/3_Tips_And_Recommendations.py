@@ -6,17 +6,12 @@ import os
 import tempfile
 LOG_FILE = os.path.join(tempfile.gettempdir(), "logs.csv")
 
-@st.cache_data
 def load_logs():
     try:
-        df = pd.read_csv(LOG_FILE)
-        df["date"] = pd.to_datetime(df["date"], errors="coerce")
-        return df
-    except Exception as e:
-        st.error(f"Error loading logs: {e}")
+        return pd.read_csv(LOG_FILE)
+    except Exception:
         return pd.DataFrame()
 
-df = load_logs()
 
 st.title("Tips & Recommendations")
 
