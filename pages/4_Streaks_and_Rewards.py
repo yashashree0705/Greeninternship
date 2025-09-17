@@ -134,10 +134,10 @@ if st.button("Submit Answer"):
 # -------------------------
 # Reminders
 # -------------------------
-st.header("⏰ Energy-Saving Reminders")
+st.header(" Energy-Saving Reminders")
 
 reminders = [
-    "*** Turn off fans/lights when leaving a room.***",
+    "Turn off fans/lights when leaving a room.",
     " Set AC to 24°C for optimal efficiency.",
     " Unplug chargers and devices when not in use.",
     " Do laundry with full loads to save energy.",
