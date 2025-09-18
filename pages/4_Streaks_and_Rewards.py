@@ -99,7 +99,7 @@ quiz_pool = [
     },
     {
         "q": "What is the most efficient AC temperature setting?",
-        "options": ["18°C ❄", "22°C 🌬", "24°C "],
+        "options": ["18°C ", "22°C ", "24°C "],
         "answer": "24°C "
     },
     {
