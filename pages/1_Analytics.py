@@ -29,7 +29,7 @@ else:
     st.info("Need both baseline and post data to show comparison.")
 
 # Appliance Breakdown
-st.header("🔌 Appliance Usage Breakdown")
+st.header("Appliance Usage Breakdown")
 appliance_cols = ["fan_hours", "light_hours", "ac_hours", "charger_hours", "washing_cycles"]
 avg_usage = df.groupby("period")[appliance_cols].mean().reset_index()
 fig3 = px.bar(avg_usage.melt(id_vars="period", var_name="Appliance", value_name="Hours"),
