@@ -1,5 +1,4 @@
 # pages/2_User_Profile.py
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -72,6 +71,9 @@ else:
 # ---------------------------
 # Achievements
 # ---------------------------
+# ---------------------------
+# Achievements
+# ---------------------------
 st.subheader("Achievements")
 achievements = []
 
@@ -80,10 +82,14 @@ if user_df["kwh"].min() < 3:
 if (user_df["cost_rs"].max() - user_df["cost_rs"].min()) >= 100:
     achievements.append("Big Saver (₹100+ Saved)")
 
+# Check active days safely
 if "date" in user_df.columns and not user_df["date"].isna().all():
-    active_days = user_df["date"].dt.normalize().nunique()  # unique calendar days
-    if active_days >= 7:
-        achievements.append("Weekly Warrior (7+ active days)")
+    try:
+        active_days = user_df["date"].dt.normalize().nunique()
+        if active_days >= 7:
+            achievements.append("Weekly Warrior (7+ active days)")
+    except Exception as e:
+        st.warning(f"⚠ Could not calculate active days: {e}")
 
 if achievements:
     for ach in achievements:
