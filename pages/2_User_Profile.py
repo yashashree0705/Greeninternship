@@ -1,130 +1,97 @@
 # pages/2_User_Profile.py
 # pages/2_User_Profile.py
+# pages/2_User_Profile.py
 
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import os
-import tempfile
+import datetime
+import random
 
-# Use the SAME log file as in app.py and Analytics page
-LOG_FILE = os.path.join(tempfile.gettempdir(), "logs.csv")
+from utils import LOG_FILE, read_logs
 
-@st.cache_data
-def load_logs():
-    try:
-        df = pd.read_csv(LOG_FILE)
-        df["date"] = pd.to_datetime(df["date"], errors="coerce")
-        return df
-    except Exception:
-        return pd.DataFrame()
+st.title("User Profile Dashboard")
 
-df = load_logs()
-
-st.title(" User Profile Dashboard")
+# Load logs
+df = read_logs()
 
 if df.empty:
-    st.warning("No data available. Please log entries first.")
+    st.warning("⚠ No user data found. Please add some logs first.")
     st.stop()
 
-# -------------------------
-# User Selection
-# -------------------------
-users = df["user_id"].dropna().unique().tolist()
-selected_user = st.selectbox("Select User", users)
+# ---------------------------
+# User Selector
+# ---------------------------
+users = df["user_id"].unique().tolist()
+selected_user = st.selectbox("Select a user", users)
 
 user_df = df[df["user_id"] == selected_user].sort_values("date")
 
-st.subheader(f"Profile for {selected_user}")
+# ---------------------------
+# Profile Card
+# ---------------------------
+st.subheader("Profile Overview")
+col1, col2 = st.columns([1, 2])
 
-# -------------------------
-# Latest Metrics
-# -------------------------
-latest = user_df.iloc[-1]
+with col1:
+    st.image("https://cdn-icons-png.flaticon.com/512/847/847969.png", width=120)  # placeholder avatar
+    st.markdown(f"### {selected_user}")
+    st.markdown("Location: Not set")
+    st.markdown("Role: Energy Enthusiast")
 
-col1, col2, col3 = st.columns(3)
-col1.metric("Latest kWh", f"{latest['kwh']:.2f}")
-col2.metric("Latest Cost (Rs)", f"₹ {latest['cost_rs']:.2f}")
-col3.metric("Latest CO₂ (kg)", f"{latest['co2_kg']:.2f}")
+with col2:
+    avg_kwh = user_df["kwh"].mean()
+    avg_cost = user_df["cost_rs"].mean()
+    avg_co2 = user_df["co2_kg"].mean()
 
-# -------------------------
-# Trend Over Time
-# -------------------------
-st.header("Energy Trend Over Time")
+    st.metric("Avg. kWh/day", f"{avg_kwh:.2f}")
+    st.metric("Avg. Cost/day", f"₹ {avg_cost:.2f}")
+    st.metric("Avg. CO₂/day", f"{avg_co2:.2f} kg")
 
-fig1 = px.line(
-    user_df,
-    x="date",
-    y="kwh",
-    markers=True,
-    title=f"Energy Consumption Trend - {selected_user}"
-)
-st.plotly_chart(fig1, use_container_width=True)
+# ---------------------------
+# Trend Snapshot
+# ---------------------------
+st.subheader("Usage Snapshot")
+fig = px.line(user_df, x="date", y="kwh", markers=True, title="Daily Energy Usage")
+st.plotly_chart(fig, use_container_width=True)
 
-# -------------------------
-# Baseline vs Post (if available)
-# -------------------------
-st.header("⚖ Baseline vs Post Comparison")
+# ---------------------------
+# Goals & Progress
+# ---------------------------
+st.subheader("Personal Goals")
+goal = st.slider("Set your daily kWh reduction goal", 1, 20, 5)
+latest_usage = user_df.iloc[-1]["kwh"]
 
-if "baseline" in user_df["period"].values and "post" in user_df["period"].values:
-    baseline = user_df[user_df["period"] == "baseline"].iloc[0]
-    post = user_df[user_df["period"] == "post"].iloc[-1]
-
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Baseline kWh", f"{baseline['kwh']:.2f}")
-    col2.metric("Post kWh", f"{post['kwh']:.2f}")
-    change = ((post["kwh"] - baseline["kwh"]) / baseline["kwh"]) * 100
-    col3.metric("Change (%)", f"{change:.1f}%")
-
-    compare = pd.DataFrame({
-        "Period": ["Baseline", "Post"],
-        "kWh": [baseline["kwh"], post["kwh"]],
-        "Cost (Rs)": [baseline["cost_rs"], post["cost_rs"]],
-        "CO₂ (kg)": [baseline["co2_kg"], post["co2_kg"]]
-    })
-    fig2 = px.bar(
-        compare.melt(id_vars="Period", var_name="Metric", value_name="Value"),
-        x="Metric", y="Value", color="Period",
-        barmode="group", text_auto=".2f",
-        title=f"{selected_user} – Baseline vs Post"
-    )
-    st.plotly_chart(fig2, use_container_width=True)
+if latest_usage <= goal:
+    st.success(f"Great! You stayed under your goal of {goal} kWh.")
 else:
-    st.info("This user doesn’t have both baseline and post data yet.")
+    st.warning(f"You used {latest_usage:.2f} kWh, above your goal of {goal} kWh.")
 
-# -------------------------
-# Appliance Breakdown
-# -------------------------
-st.header("Appliance Usage Breakdown")
+# ---------------------------
+# Achievements
+# ---------------------------
+st.subheader("Achievements")
+achievements = []
+if user_df["kwh"].min() < 3:
+    achievements.append("Ultra Saver (Lowest kWh < 3)")
+if (user_df["cost_rs"].max() - user_df["cost_rs"].min()) >= 100:
+    achievements.append("Big Saver (₹100+ Saved)")
+if len(user_df["date"].dt.date.unique()) >= 7:
+    achievements.append("Weekly Warrior (7+ active days)")
 
-appliance_cols = ["fan_hours", "light_hours", "ac_hours", "charger_hours", "washing_cycles"]
-
-if any(col in user_df.columns for col in appliance_cols):
-    avg_usage = user_df.groupby("period")[appliance_cols].mean().reset_index()
-    fig3 = px.bar(
-        avg_usage.melt(id_vars="period", var_name="Appliance", value_name="Hours"),
-        x="Appliance", y="Hours", color="period",
-        barmode="group", text_auto=".2f",
-        title=f"Average Appliance Usage - {selected_user}"
-    )
-    st.plotly_chart(fig3, use_container_width=True)
+if achievements:
+    for ach in achievements:
+        st.success(ach)
 else:
-    st.info("No appliance usage data available.")
+    st.info("No achievements yet – keep going!")
 
-# -------------------------
-# Personalized Summary
-# -------------------------
-st.header("Personalized Summary")
-
-if "baseline" in user_df["period"].values and "post" in user_df["period"].values:
-    saving_kwh = baseline["kwh"] - post["kwh"]
-    saving_cost = baseline["cost_rs"] - post["cost_rs"]
-    saving_co2 = baseline["co2_kg"] - post["co2_kg"]
-
-    st.success(
-        f"{selected_user} reduced their energy usage by **{saving_kwh:.2f} kWh**, "
-        f"saving **₹{saving_cost:.2f}** and cutting **{saving_co2:.2f} kg CO₂** "
-        f"since the baseline measurement. 🎉"
-    )
+# ---------------------------
+# Community Comparison
+# ---------------------------
+st.subheader("📈 Community Rank")
+community_avg = df["kwh"].mean()
+if avg_kwh < community_avg:
+    st.success(f"👏 You use less energy ({avg_kwh:.2f}) than the community average ({community_avg:.2f})!")
 else:
-    st.info("Savings summary will be available once both baseline and post data are logged.")
+    st.error(f"⚡ You use more ({avg_kwh:.2f}) than the community average ({community_avg:.2f}). Try to reduce it!")
