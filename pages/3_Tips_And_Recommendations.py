@@ -29,7 +29,7 @@ if df is None or df.empty:
 # User Selection
 # -------------------------
 users = df["user_id"].dropna().unique().tolist()
-selected_user = st.selectbox("👤 Select User", users)
+selected_user = st.selectbox("Select User", users)
 
 user_df = df[df["user_id"] == selected_user].sort_values("date")
 if user_df.empty:
