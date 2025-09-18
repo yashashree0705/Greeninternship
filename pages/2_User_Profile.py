@@ -65,33 +65,60 @@ if latest_usage <= goal:
 else:
     st.warning(f"You used {latest_usage:.2f} kWh, above your goal of {goal} kWh.")
 
-# ---------------------------
+# -------------------------
 # Achievements
-# ---------------------------
-# ---------------------------
-# Achievements
-# ---------------------------
-# ---------------------------
-# Achievements
-# ---------------------------
+# -------------------------
 st.subheader("Achievements")
+
 achievements = []
 
-if user_df["kwh"].min() < 3:
-    achievements.append("Ultra Saver (Lowest kWh < 3)")
-if (user_df["cost_rs"].max() - user_df["cost_rs"].min()) >= 100:
-    achievements.append("Big Saver (₹100+ Saved)")
+if "date" in user_df.columns:
+    # Ensure date is datetime
+    user_df["date"] = pd.to_datetime(user_df["date"], errors="coerce")
+    user_df["date"].fillna(pd.Timestamp.today().normalize(), inplace=True)
 
-# Check active days safely
-active_days = user_df["date"].dt.normalize().nunique()
-if active_days >= 7:
-    achievements.append(" Weekly Warrior (7+ active days)")
+    # Active days
+    active_days = user_df["date"].dt.normalize().nunique()
+    if active_days >= 7:
+        achievements.append("Weekly Warrior – Logged 7+ active days")
+    if active_days >= 30:
+        achievements.append("Monthly Master – Logged 30+ active days")
 
+# Energy milestones
+if "kwh" in user_df.columns:
+    total_kwh = user_df["kwh"].sum()
+    if total_kwh <= 50:
+        achievements.append("Low Power User – Kept usage under 50 kWh")
+    if total_kwh >= 200:
+        achievements.append("Power Tracker – Logged over 200 kWh usage")
+
+# CO₂ milestones
+if "co2_kg" in user_df.columns:
+    total_co2 = user_df["co2_kg"].sum()
+    if total_co2 < 20:
+        achievements.append("Green Guardian – CO₂ footprint < 20 kg")
+    if total_co2 >= 100:
+        achievements.append("Climate Contributor – Tracked 100+ kg CO₂")
+
+# Consistency
+if "date" in user_df.columns:
+    dates_sorted = sorted(user_df["date"].dt.normalize().unique())
+    streak, max_streak = 1, 1
+    for i in range(1, len(dates_sorted)):
+        if (dates_sorted[i] - dates_sorted[i-1]) == pd.Timedelta(days=1):
+            streak += 1
+            max_streak = max(max_streak, streak)
+        else:
+            streak = 1
+    if max_streak >= 5:
+        achievements.append(f"Consistency Champ – {max_streak}-day streak")
+
+# Display achievements
 if achievements:
     for ach in achievements:
         st.success(ach)
 else:
-    st.info("No achievements yet – keep going!")
+    st.info("No achievements yet – keep logging to unlock badges!")
 
 
 # ---------------------------
