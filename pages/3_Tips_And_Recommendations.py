@@ -71,22 +71,22 @@ add_tip(latest["fan_hours"] > 6, "Fan Overuse", "Try reducing fan usage by 30 mi
 # Light
 saved = (1 * 40 / 1000) * tariff * 30
 co2 = (1 * 40 / 1000) * emission_factor * 30
-add_tip(latest["light_hours"] > 4, "Lights On Too Long", "Switch off lights 1h earlier or use LED bulbs.", saved, co2, "#29B6F6", "💡")
+add_tip(latest["light_hours"] > 4, "Lights On Too Long", "Switch off lights 1h earlier or use LED bulbs.", saved, co2, "#29B6F6", " ")
 
 # AC
 saved = (1 * 1500 / 1000) * tariff * 30
 co2 = (1 * 1500 / 1000) * emission_factor * 30
-add_tip(latest["ac_hours"] > 2, "AC Overuse", "Set AC to 26°C and reduce by 1h/day.", saved, co2, "#EF5350", "❄")
+add_tip(latest["ac_hours"] > 2, "AC Overuse", "Set AC to 26°C and reduce by 1h/day.", saved, co2, "#EF5350", " ")
 
 # Charger
 saved = (1 * 5 / 1000) * tariff * 30
 co2 = (1 * 5 / 1000) * emission_factor * 30
-add_tip(latest["charger_hours"] > 2, "Chargers Plugged In", "Unplug chargers when not in use.", saved, co2, "#66BB6A", "🔌")
+add_tip(latest["charger_hours"] > 2, "Chargers Plugged In", "Unplug chargers when not in use.", saved, co2, "#66BB6A", " ")
 
 # Washing Machine
 saved = (1 * 500 / 1000) * tariff * 4
 co2 = (1 * 500 / 1000) * emission_factor * 4
-add_tip(latest["washing_cycles"] > 1, "Frequent Washing", "Try reducing washing by 1 cycle/week.", saved, co2, "#AB47BC", "👕")
+add_tip(latest["washing_cycles"] > 1, "Frequent Washing", "Try reducing washing by 1 cycle/week.", saved, co2, "#AB47BC", " ")
 
 # -------------------------
 # Display Tips in Boxes
