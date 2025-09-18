@@ -1,6 +1,4 @@
 # pages/2_User_Profile.py
-# pages/2_User_Profile.py
-# pages/2_User_Profile.py
 
 import streamlit as st
 import pandas as pd
@@ -71,14 +69,21 @@ else:
 # ---------------------------
 # Achievements
 # ---------------------------
+# ---------------------------
+# Achievements
+# ---------------------------
 st.subheader("Achievements")
 achievements = []
+
 if user_df["kwh"].min() < 3:
     achievements.append("Ultra Saver (Lowest kWh < 3)")
 if (user_df["cost_rs"].max() - user_df["cost_rs"].min()) >= 100:
     achievements.append("Big Saver (₹100+ Saved)")
-if len(user_df["date"].dt.date.unique()) >= 7:
-    achievements.append("Weekly Warrior (7+ active days)")
+
+if "date" in user_df.columns and not user_df["date"].isna().all():
+    active_days = user_df["date"].dt.normalize().nunique()  # unique calendar days
+    if active_days >= 7:
+        achievements.append("Weekly Warrior (7+ active days)")
 
 if achievements:
     for ach in achievements:
@@ -86,12 +91,13 @@ if achievements:
 else:
     st.info("No achievements yet – keep going!")
 
+
 # ---------------------------
 # Community Comparison
 # ---------------------------
-st.subheader("📈 Community Rank")
+st.subheader("Community Rank")
 community_avg = df["kwh"].mean()
 if avg_kwh < community_avg:
-    st.success(f"👏 You use less energy ({avg_kwh:.2f}) than the community average ({community_avg:.2f})!")
+    st.success(f"You use less energy ({avg_kwh:.2f}) than the community average ({community_avg:.2f})!")
 else:
-    st.error(f"⚡ You use more ({avg_kwh:.2f}) than the community average ({community_avg:.2f}). Try to reduce it!")
+    st.error(f"You use more ({avg_kwh:.2f}) than the community average ({community_avg:.2f}). Try to reduce it!")
