@@ -83,13 +83,9 @@ if (user_df["cost_rs"].max() - user_df["cost_rs"].min()) >= 100:
     achievements.append("Big Saver (₹100+ Saved)")
 
 # Check active days safely
-if "date" in user_df.columns and not user_df["date"].isna().all():
-    try:
-        active_days = user_df["date"].dt.normalize().nunique()
-        if active_days >= 7:
-            achievements.append("Weekly Warrior (7+ active days)")
-    except Exception as e:
-        st.warning(f"⚠ Could not calculate active days: {e}")
+active_days = user_df["date"].dt.normalize().nunique()
+if active_days >= 7:
+    achievements.append(" Weekly Warrior (7+ active days)")
 
 if achievements:
     for ach in achievements:
